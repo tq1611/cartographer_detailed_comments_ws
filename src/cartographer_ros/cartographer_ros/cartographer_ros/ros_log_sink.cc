@@ -70,7 +70,7 @@ void ScopedRosLogSink::send(const ::google::LogSeverity severity,
                             const size_t message_len) {
   const std::string message_string = ::google::LogSink::ToString(
       severity, GetBasename(filename), line, tm_time, message, message_len);
-  switch (severity) {
+  switch (severity) {   //这里针对不同级别发送不同类型的消息 通过console发送
     case ::google::GLOG_INFO:
       ROS_INFO_STREAM(message_string);
       break;

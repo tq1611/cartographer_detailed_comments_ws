@@ -16,7 +16,7 @@ options = {
   tracking_frame = "imu_link",
   pipeline = {
     {
-      action = "min_max_range_filter",
+      action = "min_max_range_filter", --最大最小滤波
       min_range = 1.,
       max_range = 80.,
     },

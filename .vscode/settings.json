@@ -80,7 +80,7 @@
   "python.autoComplete.extraPaths": [
     "/opt/ros/kinetic/lib/python2.7/dist-packages"
   ],
-  "todo-tree.tree.showBadges": false,
+  "todo-tree.tree.showBadges": true,
   "todo-tree.general.revealBehaviour": "highlight todo",
   "todo-tree.tree.showCountsInTree": true,
   "todo-tree.filtering.excludeGlobs": [

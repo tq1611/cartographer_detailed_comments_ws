@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 2.8.12)  # Ships with Ubuntu 14.04 (Trusty)
 
-project(cartographer_ros)
+project(cartographer_ros) 
 
 set(PACKAGE_DEPENDENCIES
   cartographer_ros_msgs
@@ -82,7 +82,7 @@ catkin_package(
     # TODO(damonkohler): This should be here but causes Catkin to abort because
     # protobuf specifies a library '-lpthread' instead of just 'pthread'.
     # CARTOGRAPHER
-    PCL
+    PCL   
     EIGEN3
     Boost
     urdfdom_headers

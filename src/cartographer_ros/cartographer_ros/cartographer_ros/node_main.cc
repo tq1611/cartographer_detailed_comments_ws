@@ -23,24 +23,24 @@
 #include "tf2_ros/transform_listener.h"
 
 /**
- * note: gflags是一套命令行参数解析工具
+ * note: gflags是一套命令行参数解析工具  
  * DEFINE_bool在gflags.h中定义
  * gflags主要支持的参数类型包括bool, int32, int64, uint64, double, string等
  * 定义参数通过DEFINE_type宏实现, 该宏的三个参数含义分别为命令行参数名, 参数默认值, 以及参数的帮助信息
  * 当参数被定义后, 通过FLAGS_name就可访问到对应的参数
  */
 // collect_metrics ：激活运行时度量的集合.如果激活, 可以通过ROS服务访问度量
-DEFINE_bool(collect_metrics, false,
+DEFINE_bool(collect_metrics, false,  //下面的flag_collect_metrics就是这个参数
             "Activates the collection of runtime metrics. If activated, the "
             "metrics can be accessed via a ROS service.");
-DEFINE_string(configuration_directory, "",
+DEFINE_string(configuration_directory, "",//从launch文件中来（通过小横线进行命令行标记） 在用flag_name使用这个 
               "First directory in which configuration files are searched, "
               "second is always the Cartographer installation to allow "
               "including files from there.");
 DEFINE_string(configuration_basename, "",
               "Basename, i.e. not containing any directory prefix, of the "
               "configuration file.");
-DEFINE_string(load_state_filename, "",
+DEFINE_string(load_state_filename, "", //也在】launch文件当中
               "If non-empty, filename of a .pbstream file to load, containing "
               "a saved SLAM state.");
 DEFINE_bool(load_frozen_state, true,
@@ -56,10 +56,10 @@ namespace cartographer_ros {
 namespace {
 
 void Run() {
-  constexpr double kTfBufferCacheTimeInSeconds = 10.;
+  constexpr double kTfBufferCacheTimeInSeconds = 10.; //首先定义了一个常量 缓存时间为10秒
   tf2_ros::Buffer tf_buffer{::ros::Duration(kTfBufferCacheTimeInSeconds)};
   // 开启监听tf的独立线程
-  tf2_ros::TransformListener tf(tf_buffer);
+  tf2_ros::TransformListener tf(tf_buffer);//调用tf2_ros的TransformListener 将tf_buffer的参数传入近来
 
   NodeOptions node_options;
   TrajectoryOptions trajectory_options;
@@ -83,7 +83,7 @@ void Run() {
 
   // Node类的初始化, 将ROS的topic传入SLAM, 也就是MapBuilder
   Node node(node_options, std::move(map_builder), &tf_buffer,
-            FLAGS_collect_metrics);
+            FLAGS_collect_metrics); //这个类就是和接传感器数据有关的很重要的一个类
 
   // 如果加载了pbstream文件, 就执行这个函数
   if (!FLAGS_load_state_filename.empty()) {
@@ -95,7 +95,7 @@ void Run() {
     node.StartTrajectoryWithDefaultTopics(trajectory_options);
   }
 
-  ::ros::spin();
+  ::ros::spin();//一定的频率对所有回调函数进行 单线
 
   // 结束所有处于活动状态的轨迹
   node.FinishAllTrajectories();
@@ -137,13 +137,13 @@ int main(int argc, char** argv) {
 
   // 一般不需要在自己的代码中显式调用
   // 但是若想在创建任何NodeHandle实例之前启动ROS相关的线程, 网络等, 可以显式调用该函数.
-  ::ros::start();
+  ::ros::start();//一般自己些代码不需要
 
   // 使用ROS_INFO进行glog消息的输出
-  cartographer_ros::ScopedRosLogSink ros_log_sink;
+  cartographer_ros::ScopedRosLogSink ros_log_sink; //自定义消息的 类  自己的定义的send输出
 
   // 开始运行cartographer_ros
-  cartographer_ros::Run();
+  cartographer_ros::Run(); //对run函数进行调用
 
   // 结束ROS相关的线程, 网络等
   ::ros::shutdown();

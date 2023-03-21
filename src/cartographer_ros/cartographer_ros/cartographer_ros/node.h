@@ -194,7 +194,7 @@ class Node {
   // GUARDED_BY是数据成员的属性, 该属性声明数据成员受给定功能保护.
   // 对数据的读操作需要共享访问, 而写操作则需要互斥访问.
   // 官方介绍文档: https://clang.llvm.org/docs/ThreadSafetyAnalysis.html
-  MapBuilderBridge map_builder_bridge_ GUARDED_BY(mutex_);
+  MapBuilderBridge map_builder_bridge_ GUARDED_BY(mutex_);//写的时候需要上锁
 
   ::ros::NodeHandle node_handle_;
   ::ros::Publisher submap_list_publisher_;

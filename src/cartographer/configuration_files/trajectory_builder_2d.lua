@@ -20,9 +20,9 @@ TRAJECTORY_BUILDER_2D = {
   max_z = 2.,
   missing_data_ray_length = 5.,   -- 超过最大距离范围的数据点用这个距离代替
   num_accumulated_range_data = 1, -- 几帧有效的点云数据进行一次扫描匹配
-  voxel_filter_size = 0.025,      -- 体素滤波的立方体的边长
+  voxel_filter_size = 0.025,      -- 体素滤波的立方体的边长 2.5cm
 
-  -- 使用固定的voxel滤波之后, 再使用自适应体素滤波器
+  -- 使用固定的voxel滤波之后, 再使用自适 应体素滤波器
   -- 体素滤波器 用于生成稀疏点云 以进行 扫描匹配
   adaptive_voxel_filter = {
     max_length = 0.5,             -- 尝试确定最佳的立方体边长, 边长最大为0.5
@@ -39,7 +39,7 @@ TRAJECTORY_BUILDER_2D = {
 
   -- 是否使用 real_time_correlative_scan_matcher 为ceres提供先验信息
   -- 计算复杂度高 , 但是很鲁棒 , 在odom或者imu不准时依然能达到很好的效果
-  use_online_correlative_scan_matching = false,
+  use_online_correlative_scan_matching = false,--这是在扫描匹配之前进行计算位姿 复杂度很高 使用条件是单线激光雷达 频率比较低 建图总叠图  建图不好就打开
   real_time_correlative_scan_matcher = {
     linear_search_window = 0.1,             -- 线性搜索窗口的大小
     angular_search_window = math.rad(20.),  -- 角度搜索窗口的大小
@@ -47,11 +47,11 @@ TRAJECTORY_BUILDER_2D = {
     rotation_delta_cost_weight = 1e-1,
   },
 
-  -- ceres匹配的一些配置参数
-  ceres_scan_matcher = {
-    occupied_space_weight = 1.,
-    translation_weight = 10.,
-    rotation_weight = 40.,
+  -- ceres匹配的一些配置参数  前段扫描匹配
+  ceres_scan_matcher = {   
+    occupied_space_weight = 1., --点云和地图匹配权重
+    translation_weight = 10.,  --先验位姿和地图的平移量权重
+    rotation_weight = 40.,     --旋转权重
     ceres_solver_options = {
       use_nonmonotonic_steps = false,
       max_num_iterations = 20,
@@ -60,7 +60,7 @@ TRAJECTORY_BUILDER_2D = {
   },
 
   -- 为了防止子图里插入太多数据, 在插入子图之前之前对数据进行过滤
-  motion_filter = {
+  motion_filter = { 
     max_time_seconds = 5.,
     max_distance_meters = 0.2,
     max_angle_radians = math.rad(1.),
@@ -103,7 +103,7 @@ TRAJECTORY_BUILDER_2D = {
     range_data_inserter = {
       range_data_inserter_type = "PROBABILITY_GRID_INSERTER_2D",
       -- 概率占用栅格地图的一些配置
-      probability_grid_range_data_inserter = {
+      probability_grid_range_data_inserter = {   --将点云插入到地图
         insert_free_space = true,
         hit_probability = 0.55,
         miss_probability = 0.49,

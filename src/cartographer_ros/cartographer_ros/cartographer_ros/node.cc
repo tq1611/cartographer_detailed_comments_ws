@@ -100,7 +100,7 @@ template <typename MessageType>
       boost::function<void(const typename MessageType::ConstPtr&)>(
           // c++11: lambda表达式
           [node, handler, trajectory_id, topic](const typename MessageType::ConstPtr& msg) {
-            (node->*handler)(trajectory_id, topic, msg);
+            (node->*handler)(trajectory_id, topic, msg);//从一个参数到三个参数
           }));
 }
 
@@ -150,7 +150,7 @@ Node::Node(
   // 发布SubmapList
   submap_list_publisher_ =
       node_handle_.advertise<::cartographer_ros_msgs::SubmapList>(
-          kSubmapListTopic, kLatestOnlyPublisherQueueSize);
+          kSubmapListTopic, kLatestOnlyPublisherQueueSize);//发布在node_constants
   // 发布轨迹
   trajectory_node_list_publisher_ =
       node_handle_.advertise<::visualization_msgs::MarkerArray>(
@@ -176,7 +176,7 @@ Node::Node(
             kPointCloudMapTopic, kLatestOnlyPublisherQueueSize, true);
   }
 
-  // Step: 2 声明发布对应名字的ROS服务, 并将服务的发布器放入到vector容器中
+  // Step: 2 声明发布对应名字的ROS服务, 并将服务的发布器放入到vector容器中  服务端，每次客服来调用的话就会执行后面的函数
   service_servers_.push_back(node_handle_.advertiseService(
       kSubmapQueryServiceName, &Node::HandleSubmapQuery, this));
   service_servers_.push_back(node_handle_.advertiseService(
@@ -201,9 +201,9 @@ Node::Node(
   wall_timers_.push_back(node_handle_.createWallTimer(
       ::ros::WallDuration(node_options_.submap_publish_period_sec),  // 0.3s
       &Node::PublishSubmapList, this));
-  if (node_options_.pose_publish_period_sec > 0) {
+  if (node_options_.pose_publish_period_sec > 0) { 
     publish_local_trajectory_data_timer_ = node_handle_.createTimer(
-        ::ros::Duration(node_options_.pose_publish_period_sec),  // 5e-3s
+        ::ros::Duration(node_options_.pose_publish_period_sec),  // 5e-3s  在lua文件里可以看到
         &Node::PublishLocalTrajectoryData, this);
   }
   wall_timers_.push_back(node_handle_.createWallTimer(
@@ -715,7 +715,7 @@ void Node::LaunchSubscribers(const TrajectoryOptions& options,
   }
 }
 
-// 检查TrajectoryOptions是否存在2d或者3d轨迹的配置信息
+// 检查TrajectoryOptions是否存在2d或者3d轨迹的配置信息 看返回的是2d还是3d
 bool Node::ValidateTrajectoryOptions(const TrajectoryOptions& options) {
   if (node_options_.map_builder_options.use_trajectory_builder_2d()) {
     return options.trajectory_builder_options
