@@ -24,7 +24,8 @@
   <!-- 启动cartographer -->
   <node name="cartographer_node" pkg="cartographer_ros"
       type="cartographer_node" args="
-          -configuration_directory $(find cartographer_ros)/configuration_files
+          -configuration_directory $(find cartographer_ros)/configuration_files 
+
           -configuration_basename lx_rs16_2d_outdoor.lua"
       output="screen">
     <remap from="points2" to="rslidar_points" />
