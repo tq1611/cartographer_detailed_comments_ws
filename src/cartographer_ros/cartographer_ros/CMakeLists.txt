@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 2.8.12)  # Ships with Ubuntu 14.04 (Trusty)
+cmake_minimum_required(VERSION 2.8.12)  # Ships with Ubuntu 14.04 (Trusty) 需要的最小版本
 
-project(cartographer_ros) 
+project(cartographer_ros) #工程名
 
-set(PACKAGE_DEPENDENCIES
+set(PACKAGE_DEPENDENCIES#定义了一个变量把ros有关的依赖当在这里
   cartographer_ros_msgs
   geometry_msgs
   message_runtime
@@ -43,15 +43,15 @@ endif()
 # PCL also finds Boost. Work around by moving before find_package(cartographer).
 find_package(Boost REQUIRED COMPONENTS system iostreams)
 find_package(PCL REQUIRED COMPONENTS common io)
-
+#必须找到这三个库 否则报错
 find_package(cartographer REQUIRED)
-include("${CARTOGRAPHER_CMAKE_DIR}/functions.cmake")
+include("${CARTOGRAPHER_CMAKE_DIR}/functions.cmake")#在cartographer中有个文件是function。cmake是解析用的
 option(BUILD_GRPC "build features that require Cartographer gRPC support" false)
-google_initialize_cartographer_project()
+google_initialize_cartographer_project()#这里在function。cmake直接调用  编译的吧
 # google_enable_testing()
 set(CARTOGRAPHER_GMOCK_LIBRARIES ${GMOCK_LIBRARIES})
 
-find_package(catkin REQUIRED COMPONENTS ${PACKAGE_DEPENDENCIES})
+find_package(catkin REQUIRED COMPONENTS ${PACKAGE_DEPENDENCIES})#必须找到这个文件中自己定义的变量以及后面的包 
 
 include(FindPkgConfig)
 
@@ -67,7 +67,7 @@ if(DEFINED urdfdom_headers_VERSION)
 endif()
 
 include_directories(
-  ${urdfdom_headers_INCLUDE_DIRS}
+  ${urdfdom_headers_INCLUDE_DIRS}#urdf头文件放进来
 )
 
 # Override Catkin's GTest configuration to use GMock.
@@ -75,14 +75,14 @@ set(GTEST_FOUND TRUE)
 set(GTEST_INCLUDE_DIRS ${GMOCK_INCLUDE_DIRS})
 set(GTEST_LIBRARIES ${CARTOGRAPHER_GMOCK_LIBRARIES})
 
-catkin_package(
+catkin_package(#编译
   CATKIN_DEPENDS
-    ${PACKAGE_DEPENDENCIES}
+    ${PACKAGE_DEPENDENCIES} #ros依赖 这个形式会把依赖项取值
   DEPENDS
     # TODO(damonkohler): This should be here but causes Catkin to abort because
     # protobuf specifies a library '-lpthread' instead of just 'pthread'.
     # CARTOGRAPHER
-    PCL   
+    PCL   #非ros的依赖
     EIGEN3
     Boost
     urdfdom_headers
@@ -91,19 +91,19 @@ catkin_package(
 )
 
 file(GLOB_RECURSE ALL_SRCS "cartographer_ros/*.cc" "cartographer_ros/*.h")
-file(GLOB_RECURSE ALL_TESTS "cartographer_ros/*_test.cc")
+file(GLOB_RECURSE ALL_TESTS "cartographer_ros/*_test.cc")#迭代循环找 将该软件中所有后缀的文件加入文件夹中
 file(GLOB_RECURSE ALL_EXECUTABLES "cartographer_ros/*_main.cc")
 file(GLOB_RECURSE ALL_GRPC_FILES "cartographer_ros/cartographer_grpc/*")
-list(REMOVE_ITEM ALL_SRCS ${ALL_TESTS})
+list(REMOVE_ITEM ALL_SRCS ${ALL_TESTS})#删除点从ALL_SRCS中的ALL_TESTS
 list(REMOVE_ITEM ALL_SRCS ${ALL_EXECUTABLES})
-if (NOT ${BUILD_GRPC})
+if (NOT ${BUILD_GRPC})#不构建远程的话     
   list(REMOVE_ITEM ALL_SRCS ${ALL_GRPC_FILES})
   list(REMOVE_ITEM ALL_TESTS ${ALL_GRPC_FILES})
   list(REMOVE_ITEM ALL_EXECUTABLES ${ALL_GRPC_FILES})
 endif()
 
 # 生成library
-add_library(${PROJECT_NAME} STATIC ${ALL_SRCS})
+add_library(${PROJECT_NAME} STATIC ${ALL_SRCS})#以剩下来的all——srcs为主体生成的库文件
 
 # 添加子目录,生成可执行文件
 add_subdirectory("cartographer_ros")
@@ -129,9 +129,9 @@ endforeach()
 
 # Eigen
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC
-  "${EIGEN3_INCLUDE_DIR}")
+  "${EIGEN3_INCLUDE_DIR}")#包含eigen3头文件 
 
-# Boost
+# Boost 连接起来
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC
   "${Boost_INCLUDE_DIRS}")
 target_link_libraries(${PROJECT_NAME} PUBLIC ${Boost_LIBRARIES})
@@ -175,12 +175,12 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 #   endforeach()
 # endif()
 
-install(DIRECTORY launch urdf configuration_files
+install(DIRECTORY launch urdf configuration_files#安装文件夹的意思
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
 install(PROGRAMS scripts/tf_remove_frames.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}#安装脚本到bin下面
 )
 
 install(TARGETS ${PROJECT_NAME}
@@ -190,7 +190,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 # Install source headers.
-file(GLOB_RECURSE HDRS "cartographer_ros/*.h")
+file(GLOB_RECURSE HDRS "cartographer_ros/*.h")  #将所有头文件安装到一定地方  
 foreach(HDR ${HDRS})
   file(RELATIVE_PATH REL_FIL ${PROJECT_SOURCE_DIR} ${HDR})
   get_filename_component(INSTALL_DIR ${REL_FIL} DIRECTORY)

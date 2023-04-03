@@ -37,7 +37,7 @@ namespace {
 const char* GetBasename(const char* filepath) {
   // 找到 '/' 最后一次在filepath中出现的位置
   const char* base = std::strrchr(filepath, '/');
-  // 找到'/',就将'/'之后的字符串返回；找不到'/', 就将整个filepath返回
+  // 找到'/',就将'/'之后的字符串返回；找不到'/', 就将整个filepath返回 具體實現 找斜線
   return base ? (base + 1) : filepath;
 }
 
@@ -71,7 +71,7 @@ void ScopedRosLogSink::send(const ::google::LogSeverity severity,
   const std::string message_string = ::google::LogSink::ToString(
       severity, GetBasename(filename), line, tm_time, message, message_len);
   switch (severity) {   //这里针对不同级别发送不同类型的消息 通过console发送
-    case ::google::GLOG_INFO:
+    case ::google::GLOG_INFO: //調用不同級別的信息格式
       ROS_INFO_STREAM(message_string);
       break;
 

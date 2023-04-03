@@ -40,7 +40,7 @@ class ScopedRosLogSink : public ::google::LogSink {  //继承了这个类
   void WaitTillSent() override;
 
  private:
-  bool will_die_;
+  bool will_die_; 
 };
 
 }  // namespace cartographer_ros

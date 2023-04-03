@@ -32,8 +32,8 @@
 
   <author email="google-cartographer@googlegroups.com">
     The Cartographer Authors
-  </author>
-
+  </author>   
+<!-- 定义了一些依赖项-->>
   <buildtool_depend>catkin</buildtool_depend>
 
   <build_depend>git</build_depend>
@@ -65,7 +65,8 @@
 
   <test_depend>rosunit</test_depend>
 
-  <export>
+  <export> 
+<!--引用了人rviz的插件-->>
       <rviz plugin="${prefix}/rviz_plugin_description.xml" />
   </export>
 </package>

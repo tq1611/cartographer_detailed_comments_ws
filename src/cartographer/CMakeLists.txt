@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.2)#需要最小版本为3.2
 
-project(cartographer)
+project(cartographer)#工程名叫cartographer 
 
 set(CARTOGRAPHER_MAJOR_VERSION 1)
 set(CARTOGRAPHER_MINOR_VERSION 0)
@@ -35,7 +35,7 @@ if(WIN32)
   list(APPEND BOOST_COMPONENTS zlib)
   set(Boost_USE_STATIC_LIBS FALSE)
 endif()
-find_package(Boost REQUIRED COMPONENTS ${BOOST_COMPONENTS})
+find_package(Boost REQUIRED COMPONENTS ${BOOST_COMPONENTS}) #找各种库
 find_package(Ceres REQUIRED COMPONENTS SuiteSparse)
 find_package(Eigen3 REQUIRED)
 find_package(LuaGoogle REQUIRED)
@@ -69,7 +69,7 @@ if(SPHINX_FOUND)
 endif()
 
 # Install catkin package.xml
-install(FILES package.xml DESTINATION share/cartographer)
+install(FILES package.xml DESTINATION share/cartographer)#安装文件夹
 
 set(CARTOGRAPHER_CONFIGURATION_FILES_DIRECTORY ${CMAKE_INSTALL_PREFIX}/share/cartographer/configuration_files
   CACHE PATH ".lua configuration files directory")
