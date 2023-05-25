@@ -16,7 +16,7 @@
 
 #ifndef CARTOGRAPHER_ROS_CARTOGRAPHER_ROS_NODE_H
 #define CARTOGRAPHER_ROS_CARTOGRAPHER_ROS_NODE_H
-
+//这里引用了一些c++的东西 和一些cartographer的头文件以及关于ros的文件
 #include <map>
 #include <memory>
 #include <set>
@@ -51,22 +51,22 @@
 #include "sensor_msgs/PointCloud2.h"
 #include "tf2_ros/transform_broadcaster.h"
 
-namespace cartographer_ros {
+namespace cartographer_ros {  //命名空间cartographer_ros
 
 // Wires up ROS topics to SLAM.
 // 将ROS的话题传入SLAM
 class Node {
- public:
+ public:  //构造函数
   Node(const NodeOptions& node_options,
        std::unique_ptr<cartographer::mapping::MapBuilderInterface> map_builder,
        tf2_ros::Buffer* tf_buffer, bool collect_metrics);
-  ~Node();
+  ~Node(); //析构函数
 
-  // c++11: =delete: 禁止编译器自动生成默认函数; =default: 要求编译器生成一个默认函数
+  // c++11: =delete: 禁止编译器自动生成默认函数(包括默认构造、复制、析构函数等); =default: 要求编译器生成一个默认函数
 
-  // 禁止编译器自动生成 默认拷贝构造函数(复制构造函数)
+  // 禁止编译器自动生成 默认拷贝构造函数(复制构造函数) Node这个类
   Node(const Node&) = delete;
-  // 禁止编译器自动生成 默认赋值函数
+  // 禁止编译器自动生成 默认赋值函数 禁止重载运算符
   Node& operator=(const Node&) = delete;
 
   // Finishes all yet active trajectories.
@@ -192,16 +192,16 @@ class Node {
 
   // c++11: GUARDED_BY 是在Clang Thread Safety Analysis（线程安全分析）中定义的属性
   // GUARDED_BY是数据成员的属性, 该属性声明数据成员受给定功能保护.
-  // 对数据的读操作需要共享访问, 而写操作则需要互斥访问.
+  // 对数据的读操作需要共享访问, 而写操作则需要互斥访问. 可以公共读取，而不能乱写
   // 官方介绍文档: https://clang.llvm.org/docs/ThreadSafetyAnalysis.html
-  MapBuilderBridge map_builder_bridge_ GUARDED_BY(mutex_);//写的时候需要上锁
+  MapBuilderBridge map_builder_bridge_ GUARDED_BY(mutex_);//写的时候需要上锁 MapBuilderBridge的对象
 
   ::ros::NodeHandle node_handle_;
   ::ros::Publisher submap_list_publisher_;
   ::ros::Publisher trajectory_node_list_publisher_;
-  ::ros::Publisher landmark_poses_list_publisher_;
+  ::ros::Publisher la ndmark_poses_list_publisher_;
   ::ros::Publisher constraint_list_publisher_;
-  ::ros::Publisher tracked_pose_publisher_;
+    
   // These ros::ServiceServers need to live for the lifetime of the node.
   std::vector<::ros::ServiceServer> service_servers_;
   ::ros::Publisher scan_matched_point_cloud_publisher_;
@@ -249,7 +249,7 @@ class Node {
   ::ros::Timer publish_local_trajectory_data_timer_;
 
   // lx add
-  ::ros::Publisher point_cloud_map_publisher_;
+  ::ros::Publisher point_cloud_map_publisher_; //顶级名称空间
   absl::Mutex point_cloud_map_mutex_;
   bool load_state_ = false;
   size_t last_trajectory_nodes_size_ = 0;

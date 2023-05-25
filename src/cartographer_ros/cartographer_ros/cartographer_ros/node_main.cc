@@ -56,21 +56,21 @@ namespace cartographer_ros {
 namespace {
 
 void Run() {
-  constexpr double kTfBufferCacheTimeInSeconds = 10.; //首先定义了一个常量 缓存时间为10秒
+  constexpr double kTfBufferCacheTimeInSeconds = 10.; //首先定义了一个常量指针 缓存时间为10秒
   tf2_ros::Buffer tf_buffer{::ros::Duration(kTfBufferCacheTimeInSeconds)};
-  // 开启监听tf的独立线程
+  // 开启监听tf的独立线程 tf2为第二代 允许跟踪多个转换帧 同时也引用了头文件
   tf2_ros::TransformListener tf(tf_buffer);//调用tf2_ros的TransformListener 将tf_buffer的参数传入近来
 
-  NodeOptions node_options;
+  NodeOptions node_options;  //定义两个变量
   TrajectoryOptions trajectory_options;
 
   // c++11: std::tie()函数可以将变量连接到一个给定的tuple上,生成一个元素类型全是引用的tuple
 
   // 根据Lua配置文件中的内容, 为node_options, trajectory_options 赋值
   std::tie(node_options, trajectory_options) =
-      LoadOptions(FLAGS_configuration_directory, FLAGS_configuration_basename);
-
-  // MapBuilder类是完整的SLAM算法类
+      LoadOptions(FLAGS_configuration_directory, FLAGS_configuration_basename);//可对多个数据成赋值
+//tuple是c++11新增的 类似于元组 可对多个对象同时赋值
+  // MapBuilder类是完整的SLAM算法类 MapBuieder。h
   // 包含前端(TrajectoryBuilders,scan to submap) 与 后端(用于查找回环的PoseGraph) 
   auto map_builder =
       cartographer::mapping::CreateMapBuilder(node_options.map_builder_options);
@@ -83,7 +83,7 @@ void Run() {
 
   // Node类的初始化, 将ROS的topic传入SLAM, 也就是MapBuilder
   Node node(node_options, std::move(map_builder), &tf_buffer,
-            FLAGS_collect_metrics); //这个类就是和接传感器数据有关的很重要的一个类
+            FLAGS_collect_metrics); //这个类就是和接传感器数据有关的很重要的一个类 Node类
 
   // 如果加载了pbstream文件, 就执行这个函数
   if (!FLAGS_load_state_filename.empty()) {
@@ -119,9 +119,7 @@ int main(int argc, char** argv) {
   google::InitGoogleLogging(argv[0]);
   
   // 使用gflags进行参数的初始化. 其中第三个参数为remove_flag
-  // 如果为true, gflags会移除parse过的参数, 否则gflags就会保留这些参数, 但可能会对参数顺序进行调整.
-  google::ParseCommandLineFlags(&argc, &argv, true);
-
+  // 如果为true, gflags会阿
   /**
    * @brief glog里提供的CHECK系列的宏, 检测某个表达式是否为真
    * 检测expression如果不为真, 则打印后面的description和栈上的信息
@@ -140,10 +138,10 @@ int main(int argc, char** argv) {
   ::ros::start();//一般自己些代码不需要
 
   // 使用ROS_INFO进行glog消息的输出
-  cartographer_ros::ScopedRosLogSink ros_log_sink; //自定义消息的 类  自己的定义的send输出
+  cartographer_ros::ScopedRosLogSink ros_log_sink; //自定义消息的 类  自己的定义的send输出 这个类继承了google的类
 
   // 开始运行cartographer_ros
-  cartographer_ros::Run(); //对run函数进行调用
+  cartographer_ros::Run(); //对run函数进行调用  这个caetographer_ros是头头文件还是命名空间阿？
 
   // 结束ROS相关的线程, 网络等
   ::ros::shutdown();

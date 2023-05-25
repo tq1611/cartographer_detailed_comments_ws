@@ -27,7 +27,7 @@ options = {
                                             -- 如果为false tf树为map->footprint
   publish_frame_projected_to_2d = false,    -- 是否将坐标系投影到平面上
   --use_pose_extrapolator = false,            -- 发布tf时是使用pose_extrapolator的位姿还是前端计算出来的位姿
-
+                                            --如果用里程计加imu的话就是先验，是没有被激光雷达校准的
   use_odometry = false,                     -- 是否使用里程计,如果使用要求一定要有odom的tf
   use_nav_sat = false,                      -- 是否使用gps       这三者如果为true，就应该在launch文件中进行重映射  只能订阅一次
   use_landmarks = false,                    -- 是否使用landmark

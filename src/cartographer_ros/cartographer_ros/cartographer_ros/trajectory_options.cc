@@ -27,13 +27,13 @@ namespace cartographer_ros {
 namespace {
 
 void CheckTrajectoryOptions(const TrajectoryOptions& options) {
-  CHECK_GE(options.num_subdivisions_per_laser_scan, 1);
+  CHECK_GE(options.num_subdivisions_per_laser_scan, 1);//这个算法肯定要有雷达
   CHECK_GE(options.num_laser_scans + options.num_multi_echo_laser_scans +
                options.num_point_clouds,
            1)
       << "Configuration error: 'num_laser_scans', "
          "'num_multi_echo_laser_scans' and 'num_point_clouds' are "
-         "all zero, but at least one is required.";
+         "all zero, but at least one is required.";//只有雷达是需要的
 }
 
 }  // namespace
@@ -83,6 +83,6 @@ TrajectoryOptions CreateTrajectoryOptions(
   options.landmarks_sampling_ratio =
       lua_parameter_dictionary->GetDouble("landmarks_sampling_ratio");
   CheckTrajectoryOptions(options);
-  return options;
+  return options; //这里的options没有其他的特征 所以可知道是当前文件的成员
 }
 }  // namespace cartographer_ros

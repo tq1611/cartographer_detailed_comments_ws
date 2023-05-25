@@ -49,7 +49,7 @@ const std::string& CheckNoLeadingSlash(const std::string& frame_id) {
  * @param[in] tf_buffer tf_buffer
  * @param[in] trajectory_builder 轨迹构建器
  */
-SensorBridge::SensorBridge(
+SensorBridge::SensorBridge(//构造函数
     const int num_subdivisions_per_laser_scan,
     const std::string& tracking_frame,
     const double lookup_transform_timeout_sec, tf2_ros::Buffer* const tf_buffer,
@@ -72,7 +72,7 @@ std::unique_ptr<carto::sensor::OdometryData> SensorBridge::ToOdometryData(
   // 将里程计的footprint的pose转成tracking_frame的pose, 再转成carto的里程计数据类型
   return absl::make_unique<carto::sensor::OdometryData>(
       carto::sensor::OdometryData{
-          time, ToRigid3d(msg->pose.pose) * sensor_to_tracking->inverse()});
+          time, ToRigid3d(msg->pose.pose) * sensor_to_tracking->inverse()});//实现了三维刚体的坐标变换
 }
 
 // 调用trajectory_builder_的AddSensorData进行数据的处理

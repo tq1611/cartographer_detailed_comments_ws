@@ -30,12 +30,12 @@ namespace cartographer_ros {
 // Top-level options of Cartographer's ROS integration.
 struct NodeOptions {
   ::cartographer::mapping::proto::MapBuilderOptions map_builder_options;
-  std::string map_frame;
+  std::string map_frame;  //这个可在配置文件lua文件中找到具体的值  头文件是定义变量 然后在lua文件中初始化
   double lookup_transform_timeout_sec;
   double submap_publish_period_sec;
   double pose_publish_period_sec;
   double trajectory_publish_period_sec;
-  bool publish_to_tf = true;
+  bool publish_to_tf = true;  //这三个找不到值十一五inwei赋予了初值
   bool publish_tracked_pose = false;
   bool use_pose_extrapolator = true;
 };

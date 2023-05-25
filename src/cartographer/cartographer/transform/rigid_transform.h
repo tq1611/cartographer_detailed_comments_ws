@@ -138,7 +138,7 @@ class Rigid3 {
       : translation_(translation), rotation_(rotation) {}
   Rigid3(const Vector& translation, const AngleAxis& rotation)
       : translation_(translation), rotation_(rotation) {}
-
+ 
   static Rigid3 Rotation(const AngleAxis& angle_axis) {
     return Rigid3(Vector::Zero(), Quaternion(angle_axis));
   }

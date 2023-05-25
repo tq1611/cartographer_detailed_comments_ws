@@ -37,7 +37,7 @@ std::vector<std::string> ComputeRepeatedTopicNames(const std::string& topic,
   std::vector<std::string> topics;
   topics.reserve(num_topics);
   for (int i = 0; i < num_topics; ++i) {
-    topics.emplace_back(topic + "_" + std::to_string(i + 1));
+    topics.emplace_back(topic + "_" + std::to_string(i + 1));//string类型的加法 如scan_1,scan_2
   }
   // num_topics要是0就返回空的vector
   return topics;

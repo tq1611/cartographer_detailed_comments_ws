@@ -18,8 +18,8 @@
 
 #include <vector>
 
-#include "cartographer/common/configuration_file_resolver.h"
-#include "cartographer/mapping/map_builder_interface.h"
+#include "cartographer/common/configuration_file_resolver.h" //文件解析以及读取
+#include "cartographer/mapping/map_builder_interface.h"  
 #include "glog/logging.h"
 
 namespace cartographer_ros {
@@ -30,7 +30,7 @@ namespace cartographer_ros {
  * @param lua_parameter_dictionary lua字典
  * @return NodeOptions 
  */
-NodeOptions CreateNodeOptions(
+NodeOptions CreateNodeOptions(//有些函数是在cc中创建 有些函数是在另一个cc文件中定义，在头文件中创建
     ::cartographer::common::LuaParameterDictionary* const
         lua_parameter_dictionary) {
           
@@ -72,16 +72,16 @@ NodeOptions CreateNodeOptions(
  * @param[in] configuration_basename 配置文件的名字
  * @return std::tuple<NodeOptions, TrajectoryOptions> 返回节点的配置与轨迹的配置
  */
-std::tuple<NodeOptions, TrajectoryOptions> LoadOptions(
+std::tuple<NodeOptions, TrajectoryOptions> LoadOptions(  //这是返回两个类型的的stuple   
     const std::string& configuration_directory,
     const std::string& configuration_basename) {
   // 获取配置文件所在的目录
-  auto file_resolver =
+  auto file_resolver = //它的意思就是将最后的文件传入到一个容器当中，尖括号相当于赋值。并将其传入到ConfigurationFileResolver当中，提取地质赋给左值
       absl::make_unique<cartographer::common::ConfigurationFileResolver>(
           std::vector<std::string>{configuration_directory});
         
   // 读取配置文件内容到code中
-  const std::string code =
+  const std::string code =  //将指针的方法（内容为名字）放到code里
       file_resolver->GetFileContentOrDie(configuration_basename);
 
   // 根据给定的字符串, 生成一个lua字典
@@ -90,7 +90,7 @@ std::tuple<NodeOptions, TrajectoryOptions> LoadOptions(
 
   // 创建元组tuple,元组定义了一个有固定数目元素的容器, 其中的每个元素类型都可以不相同
   // 将配置文件的内容填充进NodeOptions与TrajectoryOptions, 并返回
-  return std::make_tuple(CreateNodeOptions(&lua_parameter_dictionary),
+  return std::make_tuple(CreateNodeOptions(&lua_parameter_dictionary),//将lua字典传给这两个函数
                          CreateTrajectoryOptions(&lua_parameter_dictionary));
 }
 

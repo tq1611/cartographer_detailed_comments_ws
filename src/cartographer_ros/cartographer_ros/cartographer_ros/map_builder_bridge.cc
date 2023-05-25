@@ -159,14 +159,14 @@ int MapBuilderBridge::AddTrajectory(
   CHECK_EQ(sensor_bridges_.count(trajectory_id), 0);
   // Step: 2 为这个新轨迹 添加一个SensorBridge
   sensor_bridges_[trajectory_id] = absl::make_unique<SensorBridge>(
-      trajectory_options.num_subdivisions_per_laser_scan,
+      trajectory_options.num_subdivisions_per_laser_scan, //将雷达数据拆分成几个
       trajectory_options.tracking_frame,
       node_options_.lookup_transform_timeout_sec, 
       tf_buffer_,
       map_builder_->GetTrajectoryBuilder(trajectory_id)); // CollatedTrajectoryBuilder
   
   // Step: 3 保存轨迹的参数配置
-  auto emplace_result =
+  auto emplace_result = //将轨迹数据保存在emplace_result中
       trajectory_options_.emplace(trajectory_id, trajectory_options);
   CHECK(emplace_result.second == true);
   return trajectory_id;
@@ -652,7 +652,7 @@ visualization_msgs::MarkerArray MapBuilderBridge::GetConstraintList() {
   return constraint_list;
 }
 
-// 获取对应轨迹id的SensorBridge的指针
+// 获取对应轨迹id的SensorBridge的原始指针（get获取）
 SensorBridge* MapBuilderBridge::sensor_bridge(const int trajectory_id) {
   return sensor_bridges_.at(trajectory_id).get();
 }

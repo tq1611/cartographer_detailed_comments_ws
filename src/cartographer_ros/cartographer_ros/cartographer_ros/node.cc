@@ -60,9 +60,9 @@
 
 namespace cartographer_ros {
 
-namespace carto = ::cartographer;
+namespace carto = ::cartographer; //命名空间carto就等于命名空间cartographer，且是最顶级的
 
-using carto::transform::Rigid3d;
+using carto::transform::Rigid3d; //使用caetogeapher里面的函数
 using TrajectoryState =
     ::cartographer::mapping::PoseGraphInterface::TrajectoryState;
 
@@ -72,7 +72,7 @@ using ::cartographer::mapping::MapById;
 using ::cartographer::mapping::TrajectoryNode;
 using ::cartographer::sensor::RangefinderPoint;
 
-namespace {
+namespace { //这是不是默认命名空间
 // Subscribes to the 'topic' for 'trajectory_id' using the 'node_handle' and
 // calls 'handler' on the 'node' to handle messages. Returns the subscriber.
 
@@ -134,7 +134,7 @@ Node::Node(
     const NodeOptions& node_options,
     std::unique_ptr<cartographer::mapping::MapBuilderInterface> map_builder,
     tf2_ros::Buffer* const tf_buffer, const bool collect_metrics)
-    : node_options_(node_options),
+    : node_options_(node_options),//初始化列表
       map_builder_bridge_(node_options_, std::move(map_builder), tf_buffer) {
   // 将mutex_上锁, 防止在初始化时数据被更改
   absl::MutexLock lock(&mutex_);
@@ -147,23 +147,23 @@ Node::Node(
 
   // Step: 1 声明需要发布的topic
 
-  // 发布SubmapList
+  // 发布SubmapList   想修改话题可以在launch文件中remap进行修改或者修改代码（不清楚） 
   submap_list_publisher_ =
       node_handle_.advertise<::cartographer_ros_msgs::SubmapList>(
-          kSubmapListTopic, kLatestOnlyPublisherQueueSize);//发布在node_constants
+          kSubmapListTopic, kLatestOnlyPublisherQueueSize);//发布在node_constants 声明了话题的名称 后面一个是数据缓冲区的大小
   // 发布轨迹
   trajectory_node_list_publisher_ =
       node_handle_.advertise<::visualization_msgs::MarkerArray>(
           kTrajectoryNodeListTopic, kLatestOnlyPublisherQueueSize);
   // 发布landmark_pose
-  landmark_poses_list_publisher_ =
+  landmark_poses_list_publisher_ =    
       node_handle_.advertise<::visualization_msgs::MarkerArray>(
           kLandmarkPosesListTopic, kLatestOnlyPublisherQueueSize);
   // 发布约束
   constraint_list_publisher_ =
       node_handle_.advertise<::visualization_msgs::MarkerArray>(
           kConstraintListTopic, kLatestOnlyPublisherQueueSize);
-  // 发布tracked_pose, 默认不发布
+  // 发布tracked_pose, 默认不发布 追踪轨迹
   if (node_options_.publish_tracked_pose) {
     tracked_pose_publisher_ =
         node_handle_.advertise<::geometry_msgs::PoseStamped>(
@@ -176,7 +176,8 @@ Node::Node(
             kPointCloudMapTopic, kLatestOnlyPublisherQueueSize, true);
   }
 
-  // Step: 2 声明发布对应名字的ROS服务, 并将服务的发布器放入到vector容器中  服务端，每次客服来调用的话就会执行后面的函数
+  // Step: 2 声明发布对应名字的ROS服务, 并将服务的发布器放入到vector容器中  服务端，每次客服来调用的话就会执行后面的函数 
+  //上面的step1只是空壳，代表一个名字而已，这里是实际运算过程，并且返还计算结果给客服段
   service_servers_.push_back(node_handle_.advertiseService(
       kSubmapQueryServiceName, &Node::HandleSubmapQuery, this));
   service_servers_.push_back(node_handle_.advertiseService(
@@ -192,14 +193,14 @@ Node::Node(
   service_servers_.push_back(node_handle_.advertiseService(
       kReadMetricsServiceName, &Node::HandleReadMetrics, this));
 
-  // Step: 3 处理之后的点云的发布器
+  // Step: 3 处理之后的点云的发布器 pointclound2
   scan_matched_point_cloud_publisher_ =
       node_handle_.advertise<sensor_msgs::PointCloud2>(
           kScanMatchedPointCloudTopic, kLatestOnlyPublisherQueueSize);
 
   // Step: 4 进行定时器与函数的绑定, 定时发布数据
   wall_timers_.push_back(node_handle_.createWallTimer(
-      ::ros::WallDuration(node_options_.submap_publish_period_sec),  // 0.3s
+      ::ros::WallDuration(node_options_.submap_publish_period_sec),  // 0.3s 在具体的lua文件中设置/home/x-power2/carto_ws/cartographer_detailed_comments_ws/src/cartographer_ros/cartographer_ros/configuration_files/lx_rs16_2d_outdoor_localization.lua
       &Node::PublishSubmapList, this));
   if (node_options_.pose_publish_period_sec > 0) { 
     publish_local_trajectory_data_timer_ = node_handle_.createTimer(
@@ -294,8 +295,7 @@ void Node::AddExtrapolator(const int trajectory_id,
   constexpr double kExtrapolationEstimationTimeSec = 0.001;  // 1 ms
 
   // 新生成的轨迹的id 不应该在extrapolators_中
-  CHECK(extrapolators_.count(trajectory_id) == 0);
-
+  CHECK(extrapolators_.count(trajectory_id) == 0);    
   // imu_gravity_time_constant在2d, 3d中都是10
   const double gravity_time_constant =
       node_options_.map_builder_options.use_trajectory_builder_3d()
@@ -609,20 +609,20 @@ int Node::AddTrajectory(const TrajectoryOptions& options) {
   const int trajectory_id =
       map_builder_bridge_.AddTrajectory(expected_sensor_ids, options);
 
-  // 新增一个位姿估计器
+  // 新增一个位姿估计器 融合imu和里程计做个预测 作为先验
   AddExtrapolator(trajectory_id, options);
 
   // 新生成一个传感器数据采样器
   AddSensorSamplers(trajectory_id, options);
 
-  // 订阅话题与注册回调函数
+  // 订阅话题与注册回调函数（雷达） 主要是订阅并且传参进去
   LaunchSubscribers(options, trajectory_id);
 
   // 创建了一个3s执行一次的定时器,由于oneshot=true, 所以只执行一次
   // 检查设置的topic名字是否在ros中存在, 不存在则报错
   wall_timers_.push_back(node_handle_.createWallTimer(
       ::ros::WallDuration(kTopicMismatchCheckDelaySec), // kTopicMismatchCheckDelaySec = 3s
-      &Node::MaybeWarnAboutTopicMismatch, this, /*oneshot=*/true));
+      &Node::MaybeWarnAboutTopicMismatch, this, /*oneshot=*/true)); //三秒一次执行这个函数 
 
   // 将topic名字保存下来,用于之后的新建轨迹时检查topic名字是否重复
   for (const auto& sensor_id : expected_sensor_ids) {
@@ -630,7 +630,7 @@ int Node::AddTrajectory(const TrajectoryOptions& options) {
   }
 
   return trajectory_id;
-}
+}//到这里就完成了addtrajectory
 
 /**
  * @brief 订阅话题与注册回调函数
@@ -715,7 +715,7 @@ void Node::LaunchSubscribers(const TrajectoryOptions& options,
   }
 }
 
-// 检查TrajectoryOptions是否存在2d或者3d轨迹的配置信息 看返回的是2d还是3d
+// 检查TrajectoryOptions是否存在2d或者3d轨迹的配置信息 看返回的是2d还是3d 如果不是2d或者3d，就出错 
 bool Node::ValidateTrajectoryOptions(const TrajectoryOptions& options) {
   if (node_options_.map_builder_options.use_trajectory_builder_2d()) {
     return options.trajectory_builder_options
@@ -934,7 +934,7 @@ int Node::AddOfflineTrajectory(
         expected_sensor_ids,
     const TrajectoryOptions& options) {
   absl::MutexLock lock(&mutex_);
-  const int trajectory_id =
+  const int trajectory_id =  //调用函数后会生成一个新的轨迹id
       map_builder_bridge_.AddTrajectory(expected_sensor_ids, options);
   AddExtrapolator(trajectory_id, options);
   AddSensorSamplers(trajectory_id, options);
@@ -1120,16 +1120,16 @@ void Node::HandleOdometryMessage(const int trajectory_id,
                                  const nav_msgs::Odometry::ConstPtr& msg) {
   absl::MutexLock lock(&mutex_);
   if (!sensor_samplers_.at(trajectory_id).odometry_sampler.Pulse()) {
-    return;
+    return;//处理里程计采样转状态 如果为暂停则返回就不对数据处理
   }
-  auto sensor_bridge_ptr = map_builder_bridge_.sensor_bridge(trajectory_id);
-  auto odometry_data_ptr = sensor_bridge_ptr->ToOdometryData(msg);
+  auto sensor_bridge_ptr = map_builder_bridge_.sensor_bridge(trajectory_id);//指针
+  auto odometry_data_ptr = sensor_bridge_ptr->ToOdometryData(msg);//sensor_bridge_ptr为什么能调用函数? 传入ros格式的msg（数据转换）
   // extrapolators_使用里程计数据进行位姿预测
   if (odometry_data_ptr != nullptr) {
     extrapolators_.at(trajectory_id).AddOdometryData(*odometry_data_ptr);
   }
   sensor_bridge_ptr->HandleOdometryMessage(sensor_id, msg);
-}
+}//可知里程计一共有两个走向 一个是位姿推测器extrapolators_，另一个是sensor_bridge_ptr
 
 // 调用SensorBridge的传感器处理函数进行数据处理
 void Node::HandleNavSatFixMessage(const int trajectory_id,
@@ -1151,7 +1151,7 @@ void Node::HandleLandmarkMessage(
   if (!sensor_samplers_.at(trajectory_id).landmark_sampler.Pulse()) {
     return;
   }
-  map_builder_bridge_.sensor_bridge(trajectory_id)
+  map_builder_bridge_.sensor_bridge(trajectory_id)//好多形式就是这种形式 从ros中传回来转换后的格式 再传入sensor_bridge中
       ->HandleLandmarkMessage(sensor_id, msg);
 }
 
@@ -1174,9 +1174,9 @@ void Node::HandleImuMessage(const int trajectory_id,
   auto sensor_bridge_ptr = map_builder_bridge_.sensor_bridge(trajectory_id);
   auto imu_data_ptr = sensor_bridge_ptr->ToImuData(msg);
   // extrapolators_使用里程计数据进行位姿预测
-  if (imu_data_ptr != nullptr) {
-    extrapolators_.at(trajectory_id).AddImuData(*imu_data_ptr);
-  }
+  if (imu_data_ptr != nullptr) { //当前这个类的位姿推测器和前端先验位姿推测器不同，是两个对象
+    extrapolators_.at(trajectory_id).AddImuData(*imu_data_ptr); //当前这个位资推测器主要是融合imu和里程计数据去发布tf
+  }//处理imu和处理里程计也差不多 imu数据也是两个走向 一个是为姿推测器 一个是sensor_bridge
   sensor_bridge_ptr->HandleImuMessage(sensor_id, msg);
 }
 
@@ -1246,7 +1246,7 @@ void Node::MaybeWarnAboutTopicMismatch(
 
   // 获取ros中的实际topic的全局名称,resolveName()是获取全局名称
   for (const auto& it : ros_topics) {
-    std::string resolved_topic = node_handle_.resolveName(it.name, false);
+    std::string resolved_topic = node_handle_.resolveName(it.name, false); //resolvename获取全局名称
     published_topics.insert(resolved_topic);
     published_topics_string << resolved_topic << ",";
   }
@@ -1259,7 +1259,7 @@ void Node::MaybeWarnAboutTopicMismatch(
       // 获取实际订阅的topic名字
       std::string resolved_topic = node_handle_.resolveName(subscriber.topic);
 
-      // 如果设置的topic名字,在ros中不存在,则报错
+      // 如果设置的topic名字,在ros中不存在,则报错 count查找，如果为0没查到就会报错 
       if (published_topics.count(resolved_topic) == 0) {
         LOG(WARNING) << "Expected topic \"" << subscriber.topic
                      << "\" (trajectory " << trajectory_id << ")"
